@@ -48,10 +48,11 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="will-change-transform"
           >
             <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
               Mereka Sudah Membuktikan
@@ -66,11 +67,11 @@ export default function Testimonials() {
           {reviews.map((testi, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-slate-900/40 backdrop-blur-md rounded-3xl p-6 border border-slate-800 hover:border-brand-500/30 transition-all duration-300 relative group"
+              transition={{ duration: 0.7, delay: index * 0.1, ease: "easeOut" }}
+              className="bg-slate-900/40 backdrop-blur-md rounded-3xl p-6 border border-slate-800 hover:border-brand-500/30 transition-all duration-300 relative group will-change-transform"
             >
               <Quote className="absolute top-5 right-5 text-slate-800 w-8 h-8 -z-10 group-hover:text-brand-900/30 transition-colors" />
               

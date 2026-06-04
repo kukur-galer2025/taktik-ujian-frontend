@@ -68,10 +68,11 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="will-change-transform"
           >
             <span className="text-brand-600 font-bold tracking-widest uppercase text-sm mb-3 block">Keunggulan Platform</span>
             <h3 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
@@ -87,11 +88,11 @@ export default function Features() {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="relative group"
+              transition={{ duration: 0.7, delay: index * 0.1, ease: "easeOut" }}
+              className="relative group will-change-transform"
             >
               <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] blur-xl -z-10" style={{ backgroundImage: `var(--tw-gradient-stops)` }} />
               

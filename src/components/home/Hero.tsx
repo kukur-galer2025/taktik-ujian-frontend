@@ -21,10 +21,10 @@ export default function Hero() {
           
           {/* Text Content */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-2xl"
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="max-w-2xl will-change-transform"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-sm font-semibold mb-6">
               <span className="flex h-2 w-2 rounded-full bg-brand-600 animate-pulse"></span>
@@ -65,10 +65,10 @@ export default function Hero() {
 
           {/* Hero Image/Illustration */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="relative lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0"
+            transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
+            className="relative lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0 will-change-transform"
           >
             {/* Main Mockup Container */}
             <div className="relative w-full max-w-lg aspect-square lg:aspect-auto lg:h-full bg-gradient-to-tr from-brand-100 to-brand-50 rounded-3xl border border-white shadow-2xl p-4 sm:p-6 overflow-hidden">

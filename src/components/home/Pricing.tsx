@@ -52,10 +52,11 @@ export default function Pricing() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="will-change-transform"
           >
             <span className="text-brand-600 font-bold tracking-widest uppercase text-sm mb-3 block">Investasi Masa Depan</span>
             <h3 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
@@ -75,11 +76,11 @@ export default function Pricing() {
             return (
               <motion.div
                 key={bundle.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 border transition-all duration-300 group ${
+                transition={{ duration: 0.7, delay: index * 0.15, ease: "easeOut" }}
+                className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 border transition-all duration-300 group will-change-transform ${
                   isPopular 
                     ? "border-brand-500 shadow-2xl shadow-brand-500/20 scale-100 md:scale-105 z-10" 
                     : "border-slate-100 shadow-xl shadow-slate-200/50 hover:border-slate-300 hover:-translate-y-2"

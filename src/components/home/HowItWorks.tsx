@@ -47,11 +47,11 @@ export default function HowItWorks() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="text-center max-w-3xl mx-auto mb-16 will-change-transform"
         >
           <span className="text-brand-600 font-bold tracking-widest uppercase text-sm mb-3 block">Alur Belajar</span>
           <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6 tracking-tight">Bagaimana Cara Kerjanya?</h2>
@@ -63,11 +63,11 @@ export default function HowItWorks() {
             {steps.map((step, index) => (
               <motion.div
                 key={step.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="relative flex flex-col items-center text-center group"
+                transition={{ duration: 0.7, delay: index * 0.15, ease: "easeOut" }}
+                className="relative flex flex-col items-center text-center group will-change-transform"
               >
                 <div className={`w-20 h-20 rounded-full ${step.color} text-white flex items-center justify-center mb-6 shadow-xl ${step.shadow} group-hover:scale-110 transition-transform duration-300 relative z-10 border-4 border-white`}>
                   <step.icon size={32} />
