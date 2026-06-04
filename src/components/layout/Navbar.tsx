@@ -41,7 +41,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group relative z-10">
             <img 
-              src="/logokotak.png" 
+              src="/logo-taktik.webp" 
               alt="Taktik Ujian" 
               className={`w-auto object-contain transition-all duration-500 ${isScrolled ? 'h-8' : 'h-10'}`} 
             />
@@ -119,7 +119,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-slate-200/50 shadow-2xl overflow-hidden md:hidden"
           >
             <div className="px-4 py-6 flex flex-col gap-2 max-w-7xl mx-auto">

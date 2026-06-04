@@ -45,8 +45,8 @@ export default function AdminDashboard() {
       {/* Premium Header Panel */}
       <div className="bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 relative overflow-hidden shadow-2xl border border-slate-800">
          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-           <div className="absolute -top-1/2 -left-1/4 w-[500px] h-[500px] bg-brand-500/20 rounded-full blur-[100px] animate-[spin_20s_linear_infinite]" />
-           <div className="absolute -bottom-1/2 -right-1/4 w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[100px] animate-[spin_15s_linear_infinite_reverse]" />
+           <div className="absolute -top-1/2 -left-1/4 w-[500px] h-[500px] bg-brand-500/20 rounded-full blur-[100px]" />
+           <div className="absolute -bottom-1/2 -right-1/4 w-[400px] h-[400px] bg-blue-500/20 rounded-full blur-[100px]" />
            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
          </div>
 

@@ -57,7 +57,7 @@ export default function UserNavbar({ user, onLogout }: UserNavbarProps) {
           {/* Left: Logo */}
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-              <img src="/logokotak.png" alt="Taktik Ujian" className="h-8 w-auto object-contain" />
+              <img src="/logo-taktik.webp" alt="Taktik Ujian" className="h-8 w-auto object-contain" />
             </Link>
           </div>
 

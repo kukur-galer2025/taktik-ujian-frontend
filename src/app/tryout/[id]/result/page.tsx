@@ -150,7 +150,7 @@ export default function ResultPage({ params }: { params: Promise<{ id: string }>
               <motion.div 
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+                transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.2 }}
                 className="relative z-10 flex flex-col items-center w-full"
               >
                 <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 shadow-xl relative ${

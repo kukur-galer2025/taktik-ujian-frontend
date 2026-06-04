@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2 group">
-              <img src="/logokotak.png" alt="Taktik Ujian" className="h-10 w-auto object-contain brightness-0 invert" />
+              <img src="/logo-taktik.webp" alt="Taktik Ujian" className="h-10 w-auto object-contain brightness-0 invert" />
             </Link>
             <p className="text-slate-400 leading-relaxed text-sm">
               Platform Tryout SKD CPNS & Kedinasan nomor 1 di Indonesia. Belajar lebih efektif, efisien, dan tingkatkan peluang kelulusanmu bersama kami.

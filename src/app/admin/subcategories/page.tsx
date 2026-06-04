@@ -120,8 +120,8 @@ export default function SubCategoriesManagement() {
       {/* Header Premium */}
       <div className="bg-slate-900 rounded-[2.5rem] p-8 sm:p-10 mb-8 relative overflow-hidden shadow-2xl border border-slate-800">
          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-           <div className="absolute -top-1/2 -left-1/4 w-[400px] h-[400px] bg-brand-500/20 rounded-full blur-[80px] animate-[spin_20s_linear_infinite]" />
-           <div className="absolute -bottom-1/2 -right-1/4 w-[300px] h-[300px] bg-indigo-500/20 rounded-full blur-[80px] animate-[spin_15s_linear_infinite_reverse]" />
+           <div className="absolute -top-1/2 -left-1/4 w-[400px] h-[400px] bg-brand-500/20 rounded-full blur-[80px]" />
+           <div className="absolute -bottom-1/2 -right-1/4 w-[300px] h-[300px] bg-indigo-500/20 rounded-full blur-[80px]" />
            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
          </div>
 
@@ -245,7 +245,7 @@ export default function SubCategoriesManagement() {
               initial={{ y: 100, opacity: 0, scale: 0.95 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: 100, opacity: 0, scale: 0.95 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              transition={{ type: "spring", damping: 25, stiffness: 100 }}
               className="bg-white w-full sm:max-w-md sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl relative z-10 border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-500 to-indigo-500"></div>

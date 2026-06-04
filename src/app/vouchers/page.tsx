@@ -75,8 +75,8 @@ export default function VouchersPage() {
       {/* Hero Header with Animated Mesh Gradient */}
       <div className="relative bg-slate-900 text-white overflow-hidden pb-24 sm:pb-32">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-brand-500/20 rounded-full blur-[120px] animate-[spin_20s_linear_infinite]" />
-          <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[120px] animate-[spin_15s_linear_infinite_reverse]" />
+          <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-brand-500/20 rounded-full blur-[120px]" />
+          <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[120px]" />
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.15] mix-blend-overlay"></div>
           
           {/* Luxury bottom fade */}
@@ -87,7 +87,7 @@ export default function VouchersPage() {
           <motion.div 
             initial={{ opacity: 0, x: -30 }} 
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-xl px-5 py-2.5 rounded-2xl text-brand-300 font-black text-xs uppercase tracking-widest shadow-xl mb-6 border border-white/10">
               <Sparkles size={16} className="text-emerald-400" /> Spesial Untuk Anda
@@ -102,7 +102,7 @@ export default function VouchersPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }} 
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="hidden sm:block"
           >
             <div className="relative">
@@ -132,7 +132,7 @@ export default function VouchersPage() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center py-20 bg-white rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50"
           >
             <div className="relative w-32 h-32 mx-auto mb-6">
@@ -166,7 +166,7 @@ export default function VouchersPage() {
                   key={v.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
                   className={`relative group ${!valid ? 'opacity-60 grayscale-[30%]' : ''}`}
                 >
                   {/* Outer Glow */}
@@ -274,7 +274,7 @@ export default function VouchersPage() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
             className="mt-12 relative rounded-[2rem] overflow-hidden bg-brand-900 border border-brand-800 shadow-2xl shadow-brand-900/20"
           >
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>

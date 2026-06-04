@@ -37,7 +37,7 @@ export default function MobileBottomNav() {
                 <motion.div
                   layoutId="bottomNavActive"
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-brand-600 rounded-full"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 30 }}
                 />
               )}
               <div className={`p-1.5 rounded-xl transition-all duration-200 ${

@@ -106,8 +106,8 @@ export default function MyTryoutsPage() {
       {/* Hero Header with Animated Mesh Gradient & Glassmorphism */}
       <div className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -left-1/4 w-[1000px] h-[1000px] bg-brand-600/20 rounded-full blur-[120px] animate-[spin_20s_linear_infinite]" />
-          <div className="absolute -bottom-1/2 -right-1/4 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[120px] animate-[spin_15s_linear_infinite_reverse]" />
+          <div className="absolute -top-1/2 -left-1/4 w-[1000px] h-[1000px] bg-brand-600/20 rounded-full blur-[120px]" />
+          <div className="absolute -bottom-1/2 -right-1/4 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[120px]" />
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
         </div>
         
@@ -212,7 +212,7 @@ export default function MyTryoutsPage() {
                       <motion.div 
                         layoutId="activeTabIndicator" 
                         className="absolute inset-0 bg-slate-900 rounded-xl shadow-md" 
-                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        transition={{ type: "spring", stiffness: 100, damping: 25 }}
                       />
                     )}
                     <span className={`relative z-10 flex items-center gap-2 ${isActive ? 'text-white' : 'text-slate-600 hover:text-slate-900'}`}>

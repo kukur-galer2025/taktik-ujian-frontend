@@ -138,8 +138,8 @@ export default function BundleDetailPage() {
       <div className="relative bg-slate-900 overflow-hidden">
         {/* Animated Mesh Gradients */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -left-1/4 w-[800px] h-[800px] bg-purple-600/30 rounded-full blur-[120px] animate-[spin_20s_linear_infinite]" />
-          <div className="absolute -bottom-1/2 -right-1/4 w-[600px] h-[600px] bg-blue-600/30 rounded-full blur-[120px] animate-[spin_15s_linear_infinite_reverse]" />
+          <div className="absolute -top-1/2 -left-1/4 w-[800px] h-[800px] bg-purple-600/30 rounded-full blur-[120px]" />
+          <div className="absolute -bottom-1/2 -right-1/4 w-[600px] h-[600px] bg-blue-600/30 rounded-full blur-[120px]" />
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
         </div>
 
@@ -330,7 +330,7 @@ export default function BundleDetailPage() {
             initial={{ y: 100, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 100, opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={{ type: "spring", damping: 25, stiffness: 100 }}
             className="bg-white w-full sm:max-w-lg sm:rounded-[2.5rem] rounded-t-[2.5rem] max-h-[90vh] overflow-y-auto shadow-2xl relative z-10 border border-slate-100"
           >
             {successOrder ? (

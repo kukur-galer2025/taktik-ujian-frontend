@@ -169,8 +169,8 @@ export default function TryoutDetailPage({ params }: { params: Promise<{ id: str
 
       {/* Premium Gradient Background Layer */}
       <div className="absolute top-0 left-0 w-full h-[500px] overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-1/2 -left-1/4 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-[120px] animate-[spin_20s_linear_infinite]" />
-        <div className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] animate-[spin_15s_linear_infinite_reverse]" />
+        <div className="absolute -top-1/2 -left-1/4 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-[120px]" />
+        <div className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px]" />
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
@@ -454,7 +454,7 @@ export default function TryoutDetailPage({ params }: { params: Promise<{ id: str
             initial={{ y: 100, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 100, opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={{ type: "spring", damping: 25, stiffness: 100 }}
             className="bg-white w-full sm:max-w-lg sm:rounded-[2.5rem] rounded-t-[2.5rem] max-h-[90vh] overflow-y-auto shadow-2xl relative z-10 border border-slate-100"
           >
             {successOrder ? (

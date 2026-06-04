@@ -83,7 +83,7 @@ function LoginContent() {
 
         <div className="mx-auto w-full max-w-sm lg:w-96 relative z-10">
           <Link href="/" className="flex items-center gap-2 group mb-10">
-            <img src="/logokotak.png" alt="Taktik Ujian" className="h-12 w-auto object-contain" />
+            <img src="/logo-taktik-samping.webp" alt="Taktik Ujian" className="h-12 w-auto object-contain" />
           </Link>
           
           <div className="mb-10">

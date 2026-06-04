@@ -109,8 +109,8 @@ export default function ProfilePage() {
           <div className="bg-slate-900 px-8 py-12 text-center relative overflow-hidden">
             {/* Animated Mesh Background for Profile */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute -top-1/2 -left-1/4 w-[400px] h-[400px] bg-brand-500/30 rounded-full blur-[80px] animate-[spin_15s_linear_infinite]" />
-              <div className="absolute -bottom-1/2 -right-1/4 w-[300px] h-[300px] bg-blue-500/30 rounded-full blur-[80px] animate-[spin_10s_linear_infinite_reverse]" />
+              <div className="absolute -top-1/2 -left-1/4 w-[400px] h-[400px] bg-brand-500/30 rounded-full blur-[80px]" />
+              <div className="absolute -bottom-1/2 -right-1/4 w-[300px] h-[300px] bg-blue-500/30 rounded-full blur-[80px]" />
               <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
             </div>
 

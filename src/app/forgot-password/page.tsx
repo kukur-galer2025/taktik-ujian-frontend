@@ -16,7 +16,7 @@ export default function ForgotPassword() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link href="/" className="flex items-center justify-center gap-2 group mb-8">
-          <img src="/logokotak.png" alt="Taktik Ujian" className="h-12 w-auto object-contain" />
+          <img src="/logo-taktik-samping.webp" alt="Taktik Ujian" className="h-12 w-auto object-contain" />
         </Link>
       </div>
 

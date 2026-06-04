@@ -1,12 +1,28 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import CtaButton from "@/components/home/CtaButton";
+import { useState, useEffect } from "react";
+
+const heroImages = [
+  "/hero-image.png",
+  "/hero-image-2.png",
+  "/hero-image-3.png"
+];
 
 export default function Hero() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
       {/* Background Decorators */}
@@ -68,57 +84,33 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
-            className="relative lg:h-[600px] flex items-center justify-center mt-10 lg:mt-0 will-change-transform"
+            className="relative mt-12 lg:mt-0 will-change-transform flex justify-center lg:justify-end"
           >
-            {/* Main Mockup Container */}
-            <div className="relative w-full max-w-lg aspect-square lg:aspect-auto lg:h-full bg-gradient-to-tr from-brand-100 to-brand-50 rounded-3xl border border-white shadow-2xl p-4 sm:p-6 overflow-hidden">
-              {/* Decorative elements representing app UI */}
-              <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]"></div>
-              
-              <div className="relative h-full flex flex-col gap-4">
-                {/* Mock Header */}
-                <div className="flex justify-between items-center p-4 bg-white/80 rounded-2xl shadow-sm border border-slate-100">
-                  <div className="h-4 w-24 bg-slate-200 rounded-full"></div>
-                  <div className="h-8 w-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 font-bold">PB</div>
-                </div>
-                
-                {/* Mock Chart/Score */}
-                <div className="p-6 bg-white/80 rounded-2xl shadow-sm border border-slate-100 flex-1 flex flex-col items-center justify-center">
-                  <div className="relative w-32 h-32 sm:w-40 sm:h-40">
-                    <svg className="w-full h-full" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="#f1f5f9" strokeWidth="12" />
-                      <circle cx="50" cy="50" r="40" fill="none" stroke="#2563eb" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="60" strokeLinecap="round" className="animate-[spin_4s_linear_infinite]" />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-slate-800">420</span>
-                      <span className="text-[10px] sm:text-xs text-slate-500 font-medium">Skor SKD</span>
-                    </div>
-                  </div>
-                  <div className="mt-8 w-full space-y-3">
-                    <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-slate-500">TWK (100)</span>
-                      <span className="font-bold text-slate-700">Lulus</span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
-                      <div className="bg-emerald-500 h-2 rounded-full w-[80%]"></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Floating Badges */}
-                <motion.div 
-                  animate={{ y: [0, -8, 0] }} 
-                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  className="absolute right-2 sm:-right-6 top-20 bg-white/90 backdrop-blur-sm p-3 sm:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-2 sm:gap-3 z-10"
-                >
-                  <div className="bg-emerald-100 p-1.5 sm:p-2 rounded-full">
-                    <CheckCircle2 className="text-emerald-600 sm:w-6 sm:h-6" size={20} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] sm:text-xs text-slate-500 font-medium">Status</p>
-                    <p className="text-xs sm:text-sm font-bold text-slate-800">Lulus Seleksi</p>
-                  </div>
-                </motion.div>
+            {/* Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[90%] bg-gradient-to-tr from-brand-400/30 to-indigo-400/30 blur-[80px] rounded-full"></div>
+            
+            {/* Main Image Frame */}
+            <div className="relative w-full max-w-lg xl:max-w-xl p-3 sm:p-5 bg-white/50 backdrop-blur-2xl border border-white/80 rounded-[2rem] sm:rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] group mx-auto">
+              <div className="relative w-full aspect-[4/3] sm:aspect-square rounded-2xl sm:rounded-[2.2rem] overflow-hidden shadow-inner bg-slate-100">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentImageIndex}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    className="absolute inset-0"
+                  >
+                    <Image 
+                      src={heroImages[currentImageIndex]}
+                      alt="Peserta Seleksi ASN dan Kedinasan"
+                      fill
+                      className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                      priority={currentImageIndex === 0}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           </motion.div>
