@@ -45,9 +45,9 @@ export default function Pricing() {
 
   return (
     <section id="pricing" className="py-24 bg-slate-50 relative overflow-hidden">
-      {/* Decorative Background Element */}
-      <div className="absolute top-0 right-0 -mr-40 -mt-40 w-[600px] h-[600px] rounded-full bg-brand-300/20 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-40 -mb-40 w-[600px] h-[600px] rounded-full bg-emerald-300/20 blur-[120px] pointer-events-none" />
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 right-0 -mr-40 -mt-40 w-[600px] h-[600px] rounded-full bg-brand-300/20 blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 left-0 -ml-40 -mb-40 w-[600px] h-[600px] rounded-full bg-emerald-300/20 blur-[120px] pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20">
