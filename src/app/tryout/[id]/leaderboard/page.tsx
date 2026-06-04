@@ -6,6 +6,7 @@ import { Loader2, Trophy, Medal, ArrowLeft, Clock, Target, CheckCircle2 } from "
 import axios from "@/lib/axios";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Toast } from '@/lib/sweetalert';
 
 export default function LeaderboardPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function LeaderboardPage({ params }: { params: Promise<{ id: stri
         setLeaderboard(leaderRes.data);
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat leaderboard");
+        Toast.fire({ icon: 'error', title: 'Gagal memuat leaderboard' });
         router.push("/dashboard");
       } finally {
         setLoading(false);

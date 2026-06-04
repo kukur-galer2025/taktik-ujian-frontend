@@ -1,131 +1,173 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Zap, Loader2, PackageOpen } from "lucide-react";
 import Link from "next/link";
-
-const plans = [
-  {
-    name: "Paket Gratis",
-    price: "0",
-    description: "Cocok untuk pemula yang ingin mencoba sistem CAT kami.",
-    features: [
-      "1x Tryout SKD Full",
-      "Pembahasan Dasar",
-      "Ranking Nasional",
-      "Sistem CAT Asli",
-    ],
-    buttonText: "Mulai Gratis",
-    isPopular: false,
-  },
-  {
-    name: "Paket Lulus PNS",
-    price: "99.000",
-    period: "/bulan",
-    description: "Pilihan terbaik dengan fitur super lengkap untuk kelulusanmu.",
-    features: [
-      "10x Tryout SKD Premium",
-      "Pembahasan Video Eksklusif",
-      "Analisis Kelemahan Materi",
-      "Ranking Nasional Real-time",
-      "Grup Diskusi Telegram",
-      "Materi TWK, TIU, TKP Terupdate",
-    ],
-    buttonText: "Beli Paket Sekarang",
-    isPopular: true,
-  },
-  {
-    name: "Paket Intensif",
-    price: "249.000",
-    period: "/3 bulan",
-    description: "Akses sepuasnya untuk persiapan matang hingga hari H ujian.",
-    features: [
-      "Tryout SKD Premium Sepuasnya",
-      "Semua Fitur Paket Lulus PNS",
-      "Sesi Mentoring Zoom Mingguan",
-      "Simulasi Wawancara",
-      "Prioritas Support Pelanggan",
-    ],
-    buttonText: "Pilih Paket Intensif",
-    isPopular: false,
-  },
-];
+import { useEffect, useState } from "react";
+import axios from "@/lib/axios";
 
 export default function Pricing() {
+  const [bundles, setBundles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBundles = async () => {
+      try {
+        const res = await axios.get("/api/public/bundles");
+        if (res.data && res.data.length > 0) {
+          // Hanya tampilkan 3 paket bundling utama
+          setBundles(res.data.slice(0, 3));
+        }
+      } catch (err) {
+        console.error("Gagal memuat paket", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBundles();
+  }, []);
+
+  const formatRupiah = (n: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+
+  if (loading) {
+    return (
+      <section id="pricing" className="py-24 bg-slate-50 flex justify-center items-center">
+        <Loader2 className="animate-spin text-brand-500 w-10 h-10" />
+      </section>
+    );
+  }
+
+  // Jika tidak ada data bundle dari sistem, sembunyikan atau tampilkan pesan
+  if (bundles.length === 0) {
+    return null;
+  }
+
   return (
     <section id="pricing" className="py-24 bg-slate-50 relative overflow-hidden">
       {/* Decorative Background Element */}
-      <div className="absolute top-0 right-0 -mr-40 -mt-40 w-96 h-96 rounded-full bg-brand-300/20 blur-3xl" />
-      <div className="absolute bottom-0 left-0 -ml-40 -mb-40 w-96 h-96 rounded-full bg-brand-200/20 blur-3xl" />
+      <div className="absolute top-0 right-0 -mr-40 -mt-40 w-[600px] h-[600px] rounded-full bg-brand-300/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -ml-40 -mb-40 w-[600px] h-[600px] rounded-full bg-emerald-300/20 blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-brand-600 font-bold tracking-wide uppercase text-sm mb-3">Investasi Masa Depan</h2>
-          <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
-            Pilih Paket Belajar Terbaikmu
-          </h3>
-          <p className="text-lg text-slate-600">
-            Biaya sangat terjangkau dibandingkan dengan manfaat seumur hidup sebagai ASN. Mulai dari yang gratis hingga paket intensif!
-          </p>
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="text-brand-600 font-bold tracking-widest uppercase text-sm mb-3 block">Investasi Masa Depan</span>
+            <h3 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
+              Pilih Paket Bundling Terbaik
+            </h3>
+            <p className="text-lg text-slate-600 font-medium">
+              Hemat lebih banyak dengan membeli akses penuh ke kumpulan tryout berkualitas kami.
+            </p>
+          </motion.div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 items-center">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              className={`relative bg-white rounded-3xl p-8 border ${
-                plan.isPopular 
-                  ? "border-brand-500 shadow-2xl shadow-brand-500/20 scale-100 md:scale-105 z-10" 
-                  : "border-slate-200 shadow-lg hover:shadow-xl"
-              } transition-all`}
-            >
-              {plan.isPopular && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-brand-500 to-blue-400 text-white px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1 shadow-md">
-                  <Star size={14} className="fill-white" /> Paling Diminati
-                </div>
-              )}
+        <div className="grid md:grid-cols-3 gap-8 lg:gap-10 items-center justify-center">
+          {bundles.map((bundle, index) => {
+            const isPopular = index === 1 || (index === 0 && bundles.length === 1); // Middle one is popular if 3, or first one if less
+            const tryoutsCount = bundle.tryouts_count || (bundle.tryouts ? bundle.tryouts.length : 0);
 
-              <div className="mb-8">
-                <h4 className="text-xl font-bold text-slate-900 mb-2">{plan.name}</h4>
-                <p className="text-slate-500 text-sm h-10">{plan.description}</p>
-              </div>
-
-              <div className="mb-8">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-semibold text-slate-400">Rp</span>
-                  <span className="text-5xl font-extrabold text-slate-900 tracking-tight">{plan.price}</span>
-                </div>
-                {plan.period && <span className="text-slate-500 font-medium">{plan.period}</span>}
-              </div>
-
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center mt-0.5">
-                      <Check size={14} className="text-emerald-600 font-bold" />
-                    </div>
-                    <span className="text-slate-700 font-medium">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/register"
-                className={`block w-full text-center py-4 rounded-xl font-bold transition-all ${
-                  plan.isPopular
-                    ? "bg-brand-600 hover:bg-brand-700 text-white shadow-lg hover:shadow-brand-500/50 hover:-translate-y-1"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+            return (
+              <motion.div
+                key={bundle.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.8, delay: index * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className={`relative bg-white rounded-[2.5rem] p-8 sm:p-10 border transition-all duration-300 group ${
+                  isPopular 
+                    ? "border-brand-500 shadow-2xl shadow-brand-500/20 scale-100 md:scale-105 z-10" 
+                    : "border-slate-100 shadow-xl shadow-slate-200/50 hover:border-slate-300 hover:-translate-y-2"
                 }`}
               >
-                {plan.buttonText}
-              </Link>
-            </motion.div>
-          ))}
+                {isPopular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-600 to-indigo-500 text-white px-6 py-2 rounded-full text-sm font-black flex items-center gap-1.5 shadow-lg shadow-brand-500/30 uppercase tracking-widest">
+                    <Star size={14} className="fill-white" /> Paling Diminati
+                  </div>
+                )}
+
+                <div className="mb-8 mt-2">
+                  <h4 className="text-2xl font-black text-slate-900 mb-2 truncate" title={bundle.name}>{bundle.name}</h4>
+                  <p className="text-slate-500 font-medium h-12 overflow-hidden line-clamp-2">{bundle.description || `Paket berisi kumpulan ${tryoutsCount} tryout eksklusif.`}</p>
+                </div>
+
+                <div className="mb-10 pb-8 border-b border-slate-100 relative">
+                  {bundle.discount_price ? (
+                    <>
+                      <p className="text-sm font-bold text-slate-400 line-through mb-1">{formatRupiah(bundle.price)}</p>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-brand-600">Rp</span>
+                        <span className="text-5xl font-black text-brand-600 tracking-tighter">{new Intl.NumberFormat('id-ID').format(bundle.discount_price)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-baseline gap-1 mt-6">
+                      <span className="text-2xl font-bold text-slate-400">Rp</span>
+                      <span className="text-5xl font-black text-slate-900 tracking-tighter">{new Intl.NumberFormat('id-ID').format(bundle.price)}</span>
+                    </div>
+                  )}
+                  
+                  {isPopular && (
+                    <div className="absolute -bottom-3 right-0 w-24 h-24 bg-brand-50 rounded-full flex items-center justify-center opacity-50 z-[-1]">
+                      <Zap size={64} className="text-brand-100" />
+                    </div>
+                  )}
+                </div>
+
+                <ul className="space-y-4 mb-10">
+                  <li className="flex items-start gap-3">
+                    <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 ${isPopular ? 'bg-brand-100 text-brand-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                      <PackageOpen size={12} className="font-bold" />
+                    </div>
+                    <span className="text-slate-700 font-bold">Akses ke {tryoutsCount} Tryout Premium</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 ${isPopular ? 'bg-brand-100 text-brand-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                      <Check size={14} className="font-bold" />
+                    </div>
+                    <span className="text-slate-700 font-semibold">Simulasi CAT Standar BKN</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 ${isPopular ? 'bg-brand-100 text-brand-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                      <Check size={14} className="font-bold" />
+                    </div>
+                    <span className="text-slate-700 font-semibold">Pembahasan Soal Mendetail</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 ${isPopular ? 'bg-brand-100 text-brand-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                      <Check size={14} className="font-bold" />
+                    </div>
+                    <span className="text-slate-700 font-semibold">Ranking Nasional Real-time</span>
+                  </li>
+                </ul>
+
+                <Link
+                  href={`/bundles/${bundle.id}`}
+                  className={`block w-full text-center py-4 rounded-2xl font-black transition-all text-lg border-2 ${
+                    isPopular
+                      ? "bg-brand-600 border-brand-600 hover:bg-brand-700 hover:border-brand-700 text-white shadow-lg shadow-brand-500/30 hover:-translate-y-1"
+                      : "bg-white border-slate-200 hover:border-slate-800 text-slate-800 hover:bg-slate-800 hover:text-white"
+                  }`}
+                >
+                  Lihat Detail Paket
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
+        
+        {bundles.length > 0 && (
+          <div className="mt-16 text-center">
+            <Link href="/bundles" className="inline-flex items-center gap-2 text-brand-600 font-bold hover:text-brand-700 transition-colors">
+              Lihat Semua Katalog Bundle <Zap size={18} />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

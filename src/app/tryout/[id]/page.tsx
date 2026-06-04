@@ -2,16 +2,16 @@
 
 import { useEffect, useState, useRef, use } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Loader2, Clock, ChevronLeft, ChevronRight, CheckCircle2, 
-  Flag, Maximize, Minimize, AlertTriangle, AlertCircle, X
-} from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, X, Menu } from "lucide-react";
 import axios from "@/lib/axios";
+import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { Toast } from '@/lib/sweetalert';
 
-export default function TryoutPage({ params }: { params: Promise<{ id: string }> }) {
+export default function TryoutBKNPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = use(params);
+  const { user } = useAuth();
   
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -23,26 +23,24 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
   const [doubts, setDoubts] = useState<Record<number, boolean>>({});
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
-  // Fullscreen state
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Modals state
+  // Mobile palette state
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [warningShown, setWarningShown] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [hasAgreed, setHasAgreed] = useState(false);
+  const [checkAgreed, setCheckAgreed] = useState(false);
 
   useEffect(() => {
     const fetchTryout = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) { router.push("/login"); return; }
+        const tryoutRes = await axios.get(`/api/tryouts/${id}`);
         
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        const res = await axios.get(`/api/tryouts/${id}`);
-        setTryout(res.data);
-        setQuestions(res.data.questions);
-        setTimeLeft(res.data.duration_minutes * 60);
+        setTryout(tryoutRes.data);
+        setQuestions(tryoutRes.data.questions);
+        setTimeLeft(tryoutRes.data.duration_minutes * 60);
 
         const savedAnswers = localStorage.getItem(`tryout_answers_${id}`);
         if (savedAnswers) setAnswers(JSON.parse(savedAnswers));
@@ -51,7 +49,7 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
         if (savedDoubts) setDoubts(JSON.parse(savedDoubts));
       } catch (err) {
         console.error(err);
-        alert("Gagal memuat ujian. Silakan coba lagi.");
+        Toast.fire({ icon: 'error', title: 'Gagal memuat ujian. Silakan coba lagi.' });
         router.push("/dashboard");
       } finally {
         setLoading(false);
@@ -61,7 +59,7 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
   }, [id, router]);
 
   useEffect(() => {
-    if (loading || timeLeft <= 0) return;
+    if (loading || timeLeft <= 0 || !hasAgreed) return;
     const timerId = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) { 
@@ -69,7 +67,6 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
           executeSubmit(); 
           return 0; 
         }
-        // Show warning when exactly 5 minutes left
         if (prev === 300 && !warningShown) {
           setShowWarningModal(true);
           setWarningShown(true);
@@ -78,7 +75,7 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
       });
     }, 1000);
     return () => clearInterval(timerId);
-  }, [loading, timeLeft, warningShown]);
+  }, [loading, timeLeft, warningShown, hasAgreed]);
 
   useEffect(() => {
     if (Object.keys(answers).length > 0) {
@@ -90,31 +87,21 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
     localStorage.setItem(`tryout_doubts_${id}`, JSON.stringify(doubts));
   }, [doubts, id]);
 
-  // Fullscreen listener
-  useEffect(() => {
-    const onFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener("fullscreenchange", onFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-  }, []);
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable fullscreen: ${err.message}`);
-      });
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
   const handleAnswerSelect = (questionId: number, option: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: option }));
   };
 
-  const toggleDoubt = (questionId: number) => {
-    setDoubts((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
+  const toggleDoubt = () => {
+    const qId = questions[currentIndex].id;
+    setDoubts((prev) => ({ ...prev, [qId]: !prev[qId] }));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1));
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex(prev => Math.max(0, prev - 1));
   };
 
   const executeSubmit = async () => {
@@ -128,13 +115,10 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
       });
       localStorage.removeItem(`tryout_answers_${id}`);
       localStorage.removeItem(`tryout_doubts_${id}`);
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      }
       router.push(`/tryout/${id}/result?resultId=${response.data.result.id}`);
     } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan saat menyimpan jawaban.");
+      Toast.fire({ icon: 'error', title: 'Terjadi kesalahan saat menyimpan jawaban.' });
       setSubmitting(false);
     }
   };
@@ -148,345 +132,413 @@ export default function TryoutPage({ params }: { params: Promise<{ id: string }>
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center">
-        <Loader2 className="animate-spin text-brand-500 mb-4" size={48} />
-        <p className="text-slate-400 font-medium">Mempersiapkan Ujian CBT...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#f3f4f6]">
+        <Loader2 className="animate-spin text-[#1e3a8a]" size={48} />
+      </div>
+    );
+  }
+
+  if (!hasAgreed) {
+    return (
+      <div className="min-h-screen lg:h-screen flex flex-col bg-[#eef2f5] font-[Arial,Helvetica,sans-serif] lg:overflow-hidden relative">
+        {/* Fake Blurred Background */}
+        <header className="bg-[#1e3a8a] text-white flex flex-col md:flex-row justify-between items-stretch shrink-0 border-b-[5px] border-[#fbbf24] opacity-40 blur-sm pointer-events-none">
+          <div className="flex items-center px-4 py-3">
+            <div>
+              <h1 className="text-lg md:text-xl font-bold tracking-wide m-0">SISTEM COMPUTER ASSISTED TEST</h1>
+              <p className="text-xs md:text-sm m-0 text-gray-200 uppercase">{tryout.title}</p>
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 bg-white opacity-40 blur-sm pointer-events-none"></main>
+
+        {/* MODAL OVERLAY */}
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+          <div className="bg-white max-w-md w-full rounded-3xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 fade-in duration-300">
+             {/* Glowing accent at the top */}
+             <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-500 to-rose-600"></div>
+             
+             <div className="p-8 text-center pb-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-red-50 to-rose-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-red-100/50 -rotate-3 transition-transform hover:rotate-0">
+                  <AlertTriangle size={36} strokeWidth={2.5} className="animate-pulse" />
+                </div>
+                <h2 className="text-2xl font-black text-slate-800 mb-2">Peringatan Hak Cipta</h2>
+                <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                  Soal ujian ini adalah properti eksklusif <strong>TaktikUjian</strong> dan dilindungi oleh Undang-Undang.
+                </p>
+                
+                <div className="bg-slate-50/80 rounded-2xl p-5 text-left text-[13px] text-slate-600 border border-slate-100 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0 shadow-sm shadow-red-400/50" />
+                    <span>Dilarang <strong>memotret, merekam, atau menyalin</strong> soal.</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0 shadow-sm shadow-red-400/50" />
+                    <span>Dilarang <strong>menyebarluaskan</strong> soal ke publik/sosmed.</span>
+                  </div>
+                  
+                  <div className="pt-3 border-t border-slate-200/80 mt-4">
+                    <p className="font-bold text-red-700 text-[10px] mb-1 uppercase tracking-wider">Sanksi Pidana & Denda:</p>
+                    <p className="text-[11px] leading-relaxed text-slate-500">
+                      Pelanggaran UU Hak Cipta No. 28/2014 & UU ITE diancam pidana penjara 10 tahun dan denda <strong>Rp 4.000.000.000 (Empat Miliar)</strong>.
+                    </p>
+                  </div>
+                </div>
+             </div>
+             
+             <div className="px-8 pb-4">
+                <label className="flex items-start gap-3 cursor-pointer group mb-2">
+                  <div className="relative flex items-center justify-center mt-0.5">
+                    <input 
+                      type="checkbox" 
+                      checked={checkAgreed} 
+                      onChange={(e) => setCheckAgreed(e.target.checked)} 
+                      className="peer w-5 h-5 appearance-none rounded-md border-2 border-slate-300 checked:bg-brand-600 checked:border-brand-600 transition-all cursor-pointer" 
+                    />
+                    <CheckCircle2 size={14} className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
+                  </div>
+                  <span className="text-xs text-slate-600 font-medium group-hover:text-slate-800 transition-colors leading-relaxed select-none">
+                    Saya mengerti konsekuensi hukum di atas dan berjanji tidak akan membocorkan soal.
+                  </span>
+                </label>
+             </div>
+             
+             <div className="p-4 px-6 pb-6 flex gap-3">
+                <button 
+                  onClick={() => router.push('/my-tryouts')}
+                  className="w-1/3 px-4 py-3.5 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors text-sm"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={() => { if(checkAgreed) setHasAgreed(true) }}
+                  disabled={!checkAgreed}
+                  className={`w-2/3 px-4 py-3.5 rounded-xl font-bold text-white transition-all text-sm flex items-center justify-center gap-2 ${
+                    checkAgreed ? 'bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-500/30' : 'bg-slate-300 cursor-not-allowed'
+                  }`}
+                >
+                  {checkAgreed ? 'Mulai Ujian' : 'Setujui Dulu'}
+                </button>
+             </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   const currentQuestion = questions[currentIndex];
-
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
-        <AlertTriangle className="text-red-500 mb-4" size={48} />
-        <p className="text-slate-600 font-bold mb-4">Soal tidak ditemukan untuk ujian ini.</p>
-        <button onClick={() => router.push('/dashboard')} className="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold">
-          Kembali ke Dashboard
+      <div className="min-h-screen bg-[#f3f4f6] flex flex-col items-center justify-center font-sans">
+        <p className="text-xl font-bold mb-4">Soal tidak ditemukan.</p>
+        <button onClick={() => router.push('/dashboard')} className="px-6 py-2 bg-[#1e3a8a] text-white">
+          Kembali
         </button>
       </div>
     );
   }
 
   const answeredCount = Object.keys(answers).length;
-  const doubtCount = Object.values(doubts).filter(Boolean).length;
-  const unansweredCount = questions.length - answeredCount;
-  const isUrgent = timeLeft < 300;
+  const isDoubtCurrent = !!doubts[currentQuestion.id];
 
   return (
-    <div ref={containerRef} className="h-screen flex flex-col bg-slate-100 font-sans overflow-hidden">
+    <div ref={containerRef} className="min-h-screen lg:h-screen flex flex-col bg-[#eef2f5] text-[#2d3748] font-[Arial,Helvetica,sans-serif] lg:overflow-hidden">
       
-      {/* ─── HEADER ─── */}
-      <header className="bg-slate-900 text-white shrink-0 shadow-md relative z-20">
-        <div className="px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400">
-                <CheckCircle2 size={18} />
-              </div>
-              <div>
-                <h1 className="font-black text-sm uppercase tracking-wider">{tryout?.title}</h1>
-                <p className="text-slate-400 text-xs">Simulasi Computer Assisted Test</p>
-              </div>
-            </div>
+      {/* ─── HEADER BKN ─── */}
+      <header className="bg-[#1e3a8a] text-white flex flex-col md:flex-row justify-between items-stretch shrink-0 border-b-[5px] border-[#fbbf24]">
+        {/* Left Header */}
+        <div className="flex items-center px-4 py-3 text-center md:text-left justify-center md:justify-start">
+          <div>
+            <h1 className="text-lg md:text-xl font-bold tracking-wide m-0 leading-tight">SISTEM COMPUTER ASSISTED TEST</h1>
+            <p className="text-xs md:text-sm m-0 text-gray-200 uppercase tracking-widest">{tryout.title}</p>
           </div>
-          
-          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
-            <button 
-              onClick={toggleFullscreen}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors hidden sm:block"
-              title="Fullscreen"
-            >
-              {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-            </button>
+        </div>
 
-            {/* Timer */}
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
-              isUrgent ? 'bg-red-500/10 border-red-500/30' : 'bg-slate-800 border-slate-700'
-            }`}>
-              <Clock className={isUrgent ? "text-red-500 animate-pulse" : "text-brand-400"} size={18} />
-              <span className={`font-mono text-xl font-black tracking-widest ${isUrgent ? "text-red-400" : "text-white"}`}>
-                {formatTime(timeLeft)}
-              </span>
-            </div>
-
-            <button 
-              onClick={() => setShowSubmitModal(true)}
-              disabled={submitting}
-              className="bg-brand-600 hover:bg-brand-500 text-white px-5 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 disabled:opacity-50"
-            >
-              {submitting ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
-              <span className="hidden sm:inline">Selesai Ujian</span>
-            </button>
-          </div>
+        {/* Right Header: User Data (No Photo) - Hidden on Mobile */}
+        <div className="hidden md:flex bg-[#1e40af] flex-col justify-center px-6 py-2 min-w-[250px] border-l border-[#2563eb]">
+          <div className="text-xs text-[#93c5fd] uppercase mb-0.5 font-semibold">Data Peserta</div>
+          <div className="font-bold text-sm tracking-wide uppercase truncate w-full">{user?.name}</div>
+          <div className="text-xs text-gray-300 truncate w-full">{user?.email}</div>
         </div>
       </header>
 
-      {/* ─── MAIN CONTENT ─── */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+      {/* ─── MAIN LAYOUT ─── */}
+      <main className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden">
         
-        {/* LEFT PANE: QUESTION AREA */}
-        <div className="flex-1 overflow-y-auto bg-slate-50 relative">
-          <div className="max-w-4xl mx-auto p-4 sm:p-8">
-            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-              
-              {/* Question Header */}
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-inner">
-                    {currentIndex + 1}
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Soal Ke-{currentIndex + 1} dari {questions.length}</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-md font-black text-[10px] text-white uppercase tracking-wider ${
-                        currentQuestion.type === 'TWK' ? 'bg-red-500' :
-                        currentQuestion.type === 'TIU' ? 'bg-blue-500' : 'bg-emerald-500'
-                      }`}>
-                        {currentQuestion.type}
-                      </span>
-                      {currentQuestion.sub_category && (
-                        <span className="text-xs font-bold text-slate-600 border border-slate-200 px-2 py-0.5 rounded-md">
-                          {currentQuestion.sub_category}
-                        </span>
-                      )}
+        {/* LEFT PANE: QUESTION & OPTIONS */}
+        <div className="flex-1 flex flex-col bg-white border-r border-[#cbd5e1] lg:overflow-hidden">
+          
+          {/* Question Sub-header */}
+          <div className="bg-[#f8fafc] border-b border-[#cbd5e1] flex items-center justify-between px-4 sm:px-6 py-3">
+            <button 
+              onClick={() => setIsPaletteOpen(true)}
+              className="lg:hidden flex items-center gap-2 bg-[#1e3a8a] text-white px-3 py-1.5 rounded text-sm font-bold shadow-sm"
+            >
+              <Menu size={16} /> Daftar Soal
+            </button>
+            <div className="hidden lg:flex text-[#334155] font-bold text-sm sm:text-base items-center gap-2">
+              Soal Nomor : <span className="bg-[#1e3a8a] text-white px-3 py-0.5 rounded text-base sm:text-lg">{currentIndex + 1}</span>
+            </div>
+            <div className="text-right">
+              <span className="text-[#475569] text-[10px] sm:text-xs uppercase font-bold mr-2">Sisa Waktu :</span>
+              <span className={`font-bold text-base sm:text-lg px-2 py-0.5 ${timeLeft < 300 ? 'text-white bg-red-600' : 'text-[#dc2626]'}`}>
+                {formatTime(timeLeft)}
+              </span>
+            </div>
+          </div>
+
+          {/* Question Content */}
+          <div className="flex-1 lg:overflow-y-auto px-4 sm:px-8 py-4 sm:py-6">
+            <div className="text-base text-black mb-8 leading-relaxed max-w-4xl" dangerouslySetInnerHTML={{ __html: currentQuestion.text }} />
+
+            {/* Options */}
+            <div className="space-y-3 max-w-4xl">
+              {['A', 'B', 'C', 'D', 'E'].map((opt) => {
+                const optionText = currentQuestion[`option_${opt.toLowerCase()}`];
+                if (!optionText) return null;
+                const isSelected = answers[currentQuestion.id] === opt;
+                
+                return (
+                  <label key={opt} className="flex items-start cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input 
+                      type="radio" 
+                      name={`q-${currentQuestion.id}`}
+                      value={opt}
+                      checked={isSelected}
+                      onChange={() => handleAnswerSelect(currentQuestion.id, opt)}
+                      className="mt-1 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="ml-3 flex items-start flex-1">
+                      <span className="font-bold mr-2">{opt}.</span>
+                      <div className="text-base text-black" dangerouslySetInnerHTML={{ __html: optionText }} />
                     </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => toggleDoubt(currentQuestion.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all border-2 ${
-                    doubts[currentQuestion.id]
-                      ? 'bg-amber-50 text-amber-600 border-amber-300 shadow-sm'
-                      : 'bg-white text-slate-500 border-slate-200 hover:border-amber-300 hover:text-amber-600 hover:bg-amber-50'
-                  }`}
-                >
-                  <Flag size={16} className={doubts[currentQuestion.id] ? 'fill-amber-400' : ''} />
-                  Ragu-Ragu
-                </button>
-              </div>
-
-              <div className="p-6 sm:p-8">
-                {/* Question Text */}
-                <div 
-                  className="prose prose-slate prose-lg max-w-none mb-10 text-slate-800"
-                  dangerouslySetInnerHTML={{ __html: currentQuestion.text }}
-                />
-
-                {/* Options */}
-                <div className="space-y-4">
-                  {['A', 'B', 'C', 'D', 'E'].map((opt) => {
-                    const optionText = currentQuestion[`option_${opt.toLowerCase()}`];
-                    if (!optionText) return null;
-                    const isSelected = answers[currentQuestion.id] === opt;
-                    
-                    return (
-                      <label 
-                        key={opt}
-                        className={`flex items-start p-4 rounded-2xl cursor-pointer border-2 transition-all ${
-                          isSelected 
-                            ? 'border-brand-500 bg-brand-50/50 shadow-sm' 
-                            : 'border-slate-100 hover:border-brand-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-center h-6 mt-0.5">
-                          <input 
-                            type="radio" 
-                            name={`question-${currentQuestion.id}`}
-                            value={opt}
-                            checked={isSelected}
-                            onChange={() => handleAnswerSelect(currentQuestion.id, opt)}
-                            className="w-5 h-5 text-brand-600 border-slate-300 focus:ring-brand-500 focus:ring-offset-2"
-                          />
-                        </div>
-                        <div className="ml-4 flex-1 flex">
-                          <span className={`font-black text-lg mr-3 ${isSelected ? 'text-brand-600' : 'text-slate-400'}`}>{opt}.</span>
-                          <div 
-                            className="prose prose-slate max-w-none text-slate-700 text-base flex-1 pt-0.5" 
-                            dangerouslySetInnerHTML={{ __html: optionText }} 
-                          />
-                        </div>
-                      </label>
-                    )
-                  })}
-                </div>
-              </div>
-
+                  </label>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Bottom Navigation */}
-            <div className="mt-6 flex justify-between gap-4">
-              <button 
-                onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-                disabled={currentIndex === 0}
-                className="flex items-center gap-2 px-6 py-4 rounded-2xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition-colors shadow-sm"
-              >
-                <ChevronLeft size={20} /> <span className="hidden sm:inline">Soal Sebelumnya</span>
+          {/* Footer Action Buttons */}
+          <div className="bg-[#f1f5f9] border-t border-[#cbd5e1] px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            {/* Prev */}
+            {currentIndex > 0 ? (
+              <button onClick={handlePrev} className="w-full sm:w-auto bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 sm:px-6 py-2.5 font-bold text-xs sm:text-sm tracking-wider shadow">
+                SEBELUMNYA
               </button>
-              
-              {currentIndex === questions.length - 1 ? (
-                <button 
-                  onClick={() => setShowSubmitModal(true)}
-                  className="flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-500/30"
-                >
-                  Akhiri Ujian <CheckCircle2 size={20} />
-                </button>
-              ) : (
-                <button 
-                  onClick={() => setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                  className="flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
-                >
-                  <span className="hidden sm:inline">Soal Selanjutnya</span> <ChevronRight size={20} />
-                </button>
-              )}
-            </div>
+            ) : (
+              <div className="hidden sm:block w-[180px]" /> // empty div for spacing on desktop
+            )}
+
+            {/* Ragu-Ragu */}
+            <label className="w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer bg-[#fef3c7] border border-[#f59e0b] px-4 py-2.5 shadow-sm hover:bg-[#fde68a]">
+              <input type="checkbox" checked={isDoubtCurrent} onChange={toggleDoubt} className="w-5 h-5 cursor-pointer accent-[#f59e0b]" />
+              <span className="font-bold text-[#b45309] text-xs sm:text-sm tracking-wider">RAGU - RAGU</span>
+            </label>
+
+            {/* Next / Submit */}
+            {currentIndex === questions.length - 1 ? (
+              <button onClick={() => setShowSubmitModal(true)} className="w-full sm:w-auto bg-[#16a34a] hover:bg-[#15803d] text-white px-4 sm:px-6 py-2.5 font-bold text-xs sm:text-sm tracking-wider shadow">
+                SELESAI UJIAN
+              </button>
+            ) : (
+              <button onClick={handleNext} className="w-full sm:w-auto bg-[#1e3a8a] hover:bg-[#1e40af] text-white px-4 sm:px-6 py-2.5 font-bold text-xs sm:text-sm tracking-wider shadow">
+                SELANJUTNYA
+              </button>
+            )}
           </div>
         </div>
 
-        {/* RIGHT PANE: QUESTION NAVIGATOR (Always visible on desktop, scrollable) */}
-        <div className="lg:w-[340px] shrink-0 bg-white border-l border-slate-200 flex flex-col h-64 lg:h-auto z-10">
-          <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-            <h3 className="font-bold text-slate-800 flex items-center gap-2">Navigasi Soal</h3>
-            <span className="text-xs font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded-md">{answeredCount}/{questions.length} Dijawab</span>
+        {/* RIGHT PANE: NUMBER PALETTE */}
+        {/* Desktop Palette */}
+        <div className="hidden lg:flex w-[300px] bg-white flex-col shrink-0 border-l border-[#cbd5e1] h-full">
+          <div className="bg-[#1e3a8a] text-white font-bold px-4 py-3 text-center border-b-[5px] border-[#fbbf24] text-sm uppercase tracking-wider">
+            Nomor Soal
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 bg-[#f8fafc]">
             <div className="grid grid-cols-5 gap-2">
               {questions.map((q, idx) => {
                 const isAnswered = !!answers[q.id];
                 const isDoubt = !!doubts[q.id];
                 const isCurrent = idx === currentIndex;
                 
+                let boxClass = "border border-[#94a3b8] text-[#334155] bg-white"; // default unanswered
+                
+                if (isDoubt) {
+                  boxClass = "border border-[#f59e0b] bg-[#f59e0b] text-white font-bold";
+                } else if (isAnswered) {
+                  boxClass = "border border-[#16a34a] bg-[#16a34a] text-white font-bold";
+                }
+
+                if (isCurrent) {
+                  boxClass += " outline outline-2 outline-blue-600 outline-offset-1";
+                }
+
                 return (
                   <button
                     key={q.id}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`
-                      w-full aspect-square rounded-xl font-bold text-sm flex items-center justify-center transition-all relative overflow-hidden
-                      ${isCurrent ? 'ring-2 ring-brand-500 ring-offset-2' : ''}
-                      ${isDoubt
-                        ? 'bg-amber-400 text-white shadow-sm'
-                        : isAnswered
-                          ? 'bg-emerald-500 text-white shadow-sm' 
-                          : 'bg-white border-2 border-slate-200 text-slate-500 hover:border-slate-300'
-                      }
-                    `}
+                    className={`w-full aspect-square flex items-center justify-center text-sm shadow-sm hover:opacity-80 transition-opacity ${boxClass}`}
                   >
                     {idx + 1}
-                    {isDoubt && (
-                      <div className="absolute top-0 right-0 w-0 h-0 border-t-[16px] border-t-amber-600 border-l-[16px] border-l-transparent"></div>
-                    )}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="p-4 bg-slate-50 border-t border-slate-200 text-xs font-medium text-slate-600 space-y-2.5">
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 rounded-md bg-emerald-500 shadow-sm shrink-0"></div>
-              <span>Sudah Dijawab ({answeredCount})</span>
+          {/* Legend */}
+          <div className="p-4 bg-white border-t border-[#cbd5e1] text-xs text-[#334155] space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-[#16a34a] border border-[#16a34a]"></div>
+              <span>Sudah Dijawab</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 rounded-md bg-amber-400 shadow-sm shrink-0 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-amber-600 border-l-[8px] border-l-transparent"></div>
-              </div>
-              <span>Ragu-Ragu ({doubtCount})</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-[#f59e0b] border border-[#f59e0b]"></div>
+              <span>Ragu - Ragu</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-4 h-4 rounded-md bg-white border-2 border-slate-200 shrink-0"></div>
-              <span>Belum Dijawab ({unansweredCount})</span>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-white border border-[#94a3b8]"></div>
+              <span>Belum Dijawab</span>
             </div>
           </div>
         </div>
 
       </main>
 
-      {/* ─── MODALS ─── */}
-      <AnimatePresence>
-        {/* 5 Minute Warning Modal */}
-        {showWarningModal && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
-            >
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertTriangle size={40} className="text-red-500 animate-pulse" />
+      {/* ─── MODALS & MOBILE MENUBAR ─── */}
+
+      {/* Mobile Palette Drawer */}
+      {isPaletteOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60">
+          <div className="w-[80%] max-w-[320px] bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-left">
+            <div className="bg-[#1e3a8a] text-white font-bold px-4 py-3 flex items-center justify-between border-b-[5px] border-[#fbbf24]">
+              <span className="text-sm uppercase tracking-wider">Navigasi Soal</span>
+              <button onClick={() => setIsPaletteOpen(false)} className="p-1 hover:bg-[#1e40af] rounded">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="bg-[#1e40af] px-4 py-3 text-white border-b border-[#2563eb]">
+              <div className="text-[10px] text-[#93c5fd] uppercase mb-0.5 font-semibold">Data Peserta</div>
+              <div className="font-bold text-xs tracking-wide uppercase truncate w-full">{user?.name}</div>
+              <div className="text-[10px] text-gray-300 truncate w-full">{user?.email}</div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 bg-[#f8fafc]">
+              <div className="grid grid-cols-5 gap-2">
+                {questions.map((q, idx) => {
+                  const isAnswered = !!answers[q.id];
+                  const isDoubt = !!doubts[q.id];
+                  const isCurrent = idx === currentIndex;
+                  
+                  let boxClass = "border border-[#94a3b8] text-[#334155] bg-white";
+                  
+                  if (isDoubt) boxClass = "border border-[#f59e0b] bg-[#f59e0b] text-white font-bold";
+                  else if (isAnswered) boxClass = "border border-[#16a34a] bg-[#16a34a] text-white font-bold";
+
+                  if (isCurrent) boxClass += " outline outline-2 outline-blue-600 outline-offset-1";
+
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        setCurrentIndex(idx);
+                        setIsPaletteOpen(false);
+                      }}
+                      className={`w-full aspect-square flex items-center justify-center text-sm shadow-sm ${boxClass}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  );
+                })}
               </div>
-              <h2 className="text-2xl font-black text-slate-900 mb-2">Waktu Hampir Habis!</h2>
-              <p className="text-slate-600 mb-8 font-medium">Waktu Anda tersisa kurang dari 5 menit. Segera periksa kembali jawaban yang masih ragu-ragu.</p>
+            </div>
+
+            <div className="p-4 bg-white border-t border-[#cbd5e1] text-xs text-[#334155] space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-[#16a34a] border border-[#16a34a]"></div>
+                <span>Sudah Dijawab</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-[#f59e0b] border border-[#f59e0b]"></div>
+                <span>Ragu - Ragu</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-white border border-[#94a3b8]"></div>
+                <span>Belum Dijawab</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1" onClick={() => setIsPaletteOpen(false)}></div>
+        </div>
+      )}
+      
+      {/* 5 Minute Warning Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-red-600 max-w-sm w-full p-0 overflow-hidden shadow-2xl">
+            <div className="bg-red-600 text-white font-bold px-4 py-2">Peringatan Sistem</div>
+            <div className="p-6 text-center">
+              <AlertTriangle size={48} className="text-red-600 mx-auto mb-4" />
+              <p className="text-[#334155] font-bold mb-6">Waktu pengerjaan tersisa kurang dari 5 menit.</p>
               <button 
                 onClick={() => setShowWarningModal(false)}
-                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-red-500/30"
+                className="bg-red-600 text-white font-bold px-8 py-2 hover:bg-red-700"
               >
-                Saya Mengerti
+                TUTUP
               </button>
-            </motion.div>
-          </motion.div>
-        )}
+            </div>
+          </div>
+        </div>
+      )}
 
-        {/* Submit Confirmation Modal */}
-        {showSubmitModal && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl"
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div className="w-14 h-14 bg-brand-100 rounded-2xl flex items-center justify-center text-brand-600">
-                  <CheckCircle2 size={32} />
-                </div>
-                <button onClick={() => setShowSubmitModal(false)} className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full p-2 transition-colors">
-                  <X size={20} />
-                </button>
-              </div>
+      {/* Submit Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-[#1e3a8a] max-w-md w-full p-0 shadow-2xl">
+            <div className="bg-[#1e3a8a] text-white font-bold px-4 py-2 flex justify-between items-center">
+              <span>Konfirmasi Selesai Ujian</span>
+              <button onClick={() => setShowSubmitModal(false)} className="hover:text-gray-300"><X size={18}/></button>
+            </div>
+            <div className="p-6">
+              <p className="text-center font-bold text-[#334155] mb-4">Apakah Anda yakin ingin mengakhiri ujian ini?</p>
               
-              <h2 className="text-2xl font-black text-slate-900 mb-2">Akhiri Ujian?</h2>
-              <p className="text-slate-600 mb-6 font-medium">Pastikan semua soal telah terjawab. Ujian yang sudah diakhiri tidak dapat diulang kembali.</p>
-              
-              <div className="bg-slate-50 rounded-2xl p-4 mb-8 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Terjawab</span>
-                  <span className="font-black text-emerald-600 bg-emerald-100 px-3 py-1 rounded-lg">{answeredCount}</span>
+              <div className="bg-gray-100 p-4 border border-gray-300 mb-6 space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Soal Terjawab:</span>
+                  <span className="font-bold text-green-700">{answeredCount}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Ragu-ragu</span>
-                  <span className="font-black text-amber-600 bg-amber-100 px-3 py-1 rounded-lg">{doubtCount}</span>
+                <div className="flex justify-between">
+                  <span>Soal Ragu-ragu:</span>
+                  <span className="font-bold text-yellow-700">{Object.values(doubts).filter(Boolean).length}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-medium">Belum Terjawab</span>
-                  <span className="font-black text-red-600 bg-red-100 px-3 py-1 rounded-lg">{unansweredCount}</span>
+                <div className="flex justify-between">
+                  <span>Belum Terjawab:</span>
+                  <span className="font-bold text-red-600">{questions.length - answeredCount}</span>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-4 justify-center">
                 <button 
                   onClick={() => setShowSubmitModal(false)}
-                  className="flex-1 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-3.5 rounded-xl transition-colors"
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold px-6 py-2 shadow"
                 >
-                  Cek Kembali
+                  TIDAK
                 </button>
                 <button 
                   onClick={executeSubmit}
                   disabled={submitting}
-                  className="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2"
+                  className="bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-2 flex items-center gap-2 shadow disabled:opacity-50"
                 >
-                  {submitting ? <Loader2 className="animate-spin" size={20} /> : "Ya, Akhiri"}
+                  {submitting && <Loader2 size={16} className="animate-spin" />}
+                  YA, AKHIRI UJIAN
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

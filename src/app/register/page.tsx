@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { BookOpen, User, Mail, Lock, Loader2, AlertCircle, CheckCircle2, BarChart, Phone } from "lucide-react";
 import axios from "@/lib/axios";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Register() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -36,6 +38,9 @@ export default function Register() {
 
       if (response.data.access_token) {
         localStorage.setItem("token", response.data.access_token);
+        if (response.data.user) {
+          setUser(response.data.user);
+        }
         setSuccess(true);
         setTimeout(() => {
           router.push("/dashboard");

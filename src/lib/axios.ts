@@ -32,7 +32,8 @@ axios.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401 && typeof window !== 'undefined') {
             localStorage.removeItem('token');
-            if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+            const publicPaths = ["/", "/login", "/register", "/forgot-password", "/contact", "/faq", "/privacy", "/terms"];
+            if (!publicPaths.includes(window.location.pathname)) {
                 window.location.href = '/login';
             }
         }

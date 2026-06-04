@@ -1,86 +1,98 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
-import Image from "next/image";
+import { Quote, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import axios from "@/lib/axios";
 
-const testimonials = [
+const defaultTestimonials = [
   {
     name: "Rizky Firmansyah",
-    role: "Lolos CPNS Kementerian Keuangan 2024",
-    content: "Taktik Ujian benar-benar membantu saya mengukur kemampuan sebelum tes asli. Soal TKP-nya sangat mirip dengan aslinya, bikin saya nggak kaget saat ujian beneran. Alhamdulillah lulus PG dengan skor tinggi!",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+    content: "Soal TKP-nya sangat mirip dengan aslinya, bikin saya nggak kaget saat ujian beneran. Lulus PG dengan skor tinggi!",
   },
   {
     name: "Siti Aminah",
-    role: "Lolos CPNS Pemerintah Daerah 2024",
-    content: "Sistem CAT-nya sangat akurat dan mulus. Saya yang awalnya gaptek jadi terbiasa dengan sistem BKN berkat sering tryout di sini. Analisis kelemahan materinya juga bantu saya fokus belajar TIU.",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+    content: "Sistem CAT-nya sangat akurat dan mulus. Analisis kelemahan materinya juga bantu saya fokus belajar TIU.",
   },
   {
     name: "Budi Santoso",
-    role: "Lolos Sekolah Kedinasan STAN 2024",
-    content: "Persaingan STAN sangat ketat, tapi berkat fitur Ranking Nasional di Taktik Ujian, saya jadi tahu posisi saya di mana dan makin terpacu untuk belajar. Recommended banget buat pejuang NIP!",
-    avatar: "https://i.pravatar.cc/150?u=a04258a2462d826712d",
+    content: "Berkat fitur Ranking Nasional, saya jadi tahu posisi saya di mana dan makin terpacu untuk belajar. Recommended!",
   }
 ];
 
 export default function Testimonials() {
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get('/api/public/reviews');
+        if (res.data && res.data.length > 0) {
+          setReviews(res.data.slice(0, 3));
+        } else {
+          setReviews(defaultTestimonials);
+        }
+      } catch (err) {
+        setReviews(defaultTestimonials);
+      }
+    };
+    fetchReviews();
+  }, []);
+
   return (
-    <section id="testimonials" className="py-24 bg-brand-950 relative overflow-hidden">
-      {/* Background Patterns */}
-      <div className="absolute inset-0 opacity-10">
-        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M0 40V0H40" fill="none" stroke="white" strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid-pattern)" />
-        </svg>
-      </div>
+    <section id="testimonials" className="py-16 bg-slate-950 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-brand-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-brand-400 font-bold tracking-wide uppercase text-sm mb-3">Kisah Sukses</h2>
-          <h3 className="text-3xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
-            Mereka Sudah Membuktikan
-          </h3>
-          <p className="text-lg text-slate-400">
-            Ribuan peserta telah mewujudkan mimpi mereka menjadi ASN melalui persiapan matang di platform kami. Giliran Anda selanjutnya!
-          </p>
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h3 className="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">
+              Mereka Sudah Membuktikan
+            </h3>
+            <p className="text-sm text-slate-400 font-medium">
+              Kisah sukses ribuan peserta Taktik Ujian.
+            </p>
+          </motion.div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testi, index) => (
+        <div className="grid md:grid-cols-3 gap-6">
+          {reviews.map((testi, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="bg-slate-900/80 backdrop-blur-md rounded-3xl p-8 border border-slate-800 hover:border-brand-500/50 transition-colors relative"
+              transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-slate-900/40 backdrop-blur-md rounded-3xl p-6 border border-slate-800 hover:border-brand-500/30 transition-all duration-300 relative group"
             >
-              <Quote className="absolute top-6 right-6 text-brand-900/50 w-16 h-16 -z-10" />
+              <Quote className="absolute top-5 right-5 text-slate-800 w-8 h-8 -z-10 group-hover:text-brand-900/30 transition-colors" />
               
-              <div className="flex items-center gap-4 mb-6">
-                <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-brand-500">
-                  <Image 
-                    src={testi.avatar} 
-                    alt={testi.name}
-                    fill
-                    className="object-cover"
-                  />
+              <div className="flex gap-1 mb-3">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} size={12} className="fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+
+              <p className="text-slate-300 text-sm leading-relaxed font-medium mb-6 min-h-[60px]">
+                "{testi.content || testi.comment}"
+              </p>
+              
+              <div className="flex items-center gap-3 mt-auto border-t border-slate-800/50 pt-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center font-black text-sm text-white shrink-0">
+                  {(testi.name || testi.user?.name || "?").charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-lg">{testi.name}</h4>
-                  <p className="text-brand-400 text-sm font-medium">{testi.role}</p>
+                  <h4 className="text-white font-bold text-sm">{testi.name || testi.user?.name}</h4>
+                  <p className="text-brand-400 text-[10px] font-bold uppercase tracking-wider">{testi.tryout?.title ? `Peserta ${testi.tryout.title}` : 'Alumni'}</p>
                 </div>
               </div>
-              
-              <p className="text-slate-300 leading-relaxed italic">
-                "{testi.content}"
-              </p>
             </motion.div>
           ))}
         </div>

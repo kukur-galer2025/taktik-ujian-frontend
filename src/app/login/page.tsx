@@ -6,10 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import axios from "@/lib/axios";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +50,11 @@ function LoginContent() {
       if (response.data.access_token) {
         // Save token to localStorage (or you could rely entirely on Sanctum cookies)
         localStorage.setItem("token", response.data.access_token);
+        
+        // Update auth context state immediately
+        if (response.data.user) {
+          setUser(response.data.user);
+        }
         
         // Smart Redirect
         const nextPath = searchParams.get('next') || '/dashboard';

@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Package, BarChart3, User } from "lucide-react";
+import { LayoutDashboard, BookOpen, Target, BarChart3, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Beranda" },
-  { href: "/tryouts", icon: BookOpen, label: "Tryout" },
-  { href: "/bundles", icon: Package, label: "Bundle" },
+  { href: "/my-tryouts", icon: Target, label: "TryoutKu" },
+  { href: "/tryouts", icon: BookOpen, label: "Katalog" },
   { href: "/analytics", icon: BarChart3, label: "Analitik" },
   { href: "/profile", icon: User, label: "Profil" },
 ];

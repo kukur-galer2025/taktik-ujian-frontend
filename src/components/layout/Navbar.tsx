@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,10 +21,11 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Beranda", href: "#" },
-    { name: "Fitur", href: "#features" },
-    { name: "Paket Tryout", href: "#pricing" },
-    { name: "Testimoni", href: "#testimonials" },
+    { name: "Beranda", href: "/" },
+    { name: "Alur Belajar", href: "/#how-it-works" },
+    { name: "Keunggulan", href: "/#features" },
+    { name: "Paket Tryout", href: "/#pricing" },
+    { name: "Testimoni", href: "/#testimonials" },
   ];
 
   return (
@@ -52,18 +56,39 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="text-slate-700 hover:text-brand-600 font-medium px-4 py-2 transition-colors"
-            >
-              Masuk
-            </Link>
-            <Link
-              href="/register"
-              className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md shadow-brand-200 hover:shadow-lg hover:-translate-y-0.5"
-            >
-              Daftar Sekarang
-            </Link>
+            {!loading ? (
+              user ? (
+                <>
+                  <Link
+                    href={user.role === 'admin' ? '/admin' : '/dashboard'}
+                    className="text-slate-700 hover:text-brand-600 font-medium px-4 py-2 transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md shadow-brand-200 hover:shadow-lg hover:-translate-y-0.5"
+                  >
+                    Profil Saya
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-slate-700 hover:text-brand-600 font-medium px-4 py-2 transition-colors"
+                  >
+                    Masuk
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md shadow-brand-200 hover:shadow-lg hover:-translate-y-0.5"
+                  >
+                    Daftar Sekarang
+                  </Link>
+                </>
+              )
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
@@ -100,18 +125,39 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 flex flex-col gap-3 border-t border-slate-100">
-                <Link
-                  href="/login"
-                  className="text-center text-slate-700 hover:text-brand-600 font-medium py-2"
-                >
-                  Masuk
-                </Link>
-                <Link
-                  href="/register"
-                  className="text-center bg-brand-600 text-white py-3 rounded-xl font-medium shadow-md"
-                >
-                  Daftar Sekarang
-                </Link>
+                {!loading ? (
+                  user ? (
+                    <>
+                      <Link
+                        href={user.role === 'admin' ? '/admin' : '/dashboard'}
+                        className="text-center text-slate-700 hover:text-brand-600 font-medium py-2"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="text-center bg-brand-600 text-white py-3 rounded-xl font-medium shadow-md"
+                      >
+                        Profil Saya
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="text-center text-slate-700 hover:text-brand-600 font-medium py-2"
+                      >
+                        Masuk
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="text-center bg-brand-600 text-white py-3 rounded-xl font-medium shadow-md"
+                      >
+                        Daftar Sekarang
+                      </Link>
+                    </>
+                  )
+                ) : null}
               </div>
             </div>
           </motion.div>

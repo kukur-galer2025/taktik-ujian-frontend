@@ -7,6 +7,7 @@ import { Loader2, Plus, Edit, Trash2, ArrowLeft, Save, X } from "lucide-react";
 import axios from "@/lib/axios";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import { Toast, Dialog } from '@/lib/sweetalert';
 
 const ReactQuill = dynamic(
   async () => {
@@ -40,12 +41,12 @@ function imageHandler(this: any) {
     if (file) {
       const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
       if (!validTypes.includes(file.type)) {
-        alert('Format gambar tidak didukung! Gunakan PNG, JPG, JPEG, WEBP, atau SVG.');
+        Toast.fire({ icon: 'error', title: 'Format gambar tidak didukung! Gunakan PNG, JPG, JPEG, WEBP, atau SVG.' });
         return;
       }
 
       if (file.size > 1 * 1024 * 1024) {
-        alert('Ukuran gambar terlalu besar! Maksimal 1MB.');
+        Toast.fire({ icon: 'error', title: 'Ukuran gambar terlalu besar! Maksimal 1MB.' });
         return;
       }
 
@@ -102,10 +103,11 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
     text: '',
     option_a: '', option_b: '', option_c: '', option_d: '', option_e: '',
     score_a: 0, score_b: 0, score_c: 0, score_d: 0, score_e: 0,
-    answer_key: 'A',
     explanation: ''
   };
   const [formData, setFormData] = useState(initialForm);
+  // UI Helper for TWK/TIU answer key selection
+  const [selectedKey, setSelectedKey] = useState('A');
 
   const fetchQuestions = async () => {
     try {
@@ -118,7 +120,7 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
       setSubCategories(subRes.data);
     } catch (err) {
       console.error(err);
-      alert("Gagal memuat soal");
+      Toast.fire({ icon: 'error', title: 'Gagal memuat soal' });
     } finally {
       setLoading(false);
     }
@@ -134,20 +136,19 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
       type,
       sub_category: '', // Reset sub category when type changes
       // Reset scores based on type
-      score_a: type === 'TKP' ? 1 : 0,
-      score_b: type === 'TKP' ? 2 : 0,
-      score_c: type === 'TKP' ? 3 : 0,
-      score_d: type === 'TKP' ? 4 : 0,
-      score_e: type === 'TKP' ? 5 : (type === 'TWK' || type === 'TIU' ? 5 : 0),
-      answer_key: type === 'TKP' ? 'E' : prev.answer_key
+      score_a: type === 'TKP' ? 1 : (selectedKey === 'A' ? 5 : 0),
+      score_b: type === 'TKP' ? 2 : (selectedKey === 'B' ? 5 : 0),
+      score_c: type === 'TKP' ? 3 : (selectedKey === 'C' ? 5 : 0),
+      score_d: type === 'TKP' ? 4 : (selectedKey === 'D' ? 5 : 0),
+      score_e: type === 'TKP' ? 5 : (selectedKey === 'E' ? 5 : 0)
     }));
   };
 
   const handleAnswerKeyChange = (key: string) => {
-    if (formData.type === 'TKP') return; // TKP uses specific score mapping usually
+    if (formData.type === 'TKP') return;
+    setSelectedKey(key);
     setFormData(prev => ({
       ...prev,
-      answer_key: key,
       score_a: key === 'A' ? 5 : 0,
       score_b: key === 'B' ? 5 : 0,
       score_c: key === 'C' ? 5 : 0,
@@ -173,21 +174,30 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
       if (err.response?.status === 422) {
         const errors = err.response.data.errors;
         const errorMessages = Object.values(errors).flat().join('\n');
-        alert(`Validasi gagal. Harap lengkapi data berikut:\n${errorMessages}`);
+        Toast.fire({ icon: 'error', title: 'Validasi gagal', text: errorMessages });
       } else {
-        alert("Terjadi kesalahan saat menyimpan soal.");
+        Toast.fire({ icon: 'error', title: 'Terjadi kesalahan saat menyimpan soal.' });
       }
     }
   };
 
   const handleDelete = async (qId: number) => {
-    if (!confirm("Yakin ingin menghapus soal ini?")) return;
+    const result = await Dialog.fire({
+      icon: 'warning',
+      title: 'Yakin ingin menghapus soal ini?',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    });
+    if (!result.isConfirmed) return;
+
     try {
       await axios.delete(`/api/admin/tryouts/${id}/questions/${qId}`);
       fetchQuestions();
+      Toast.fire({ icon: 'success', title: 'Soal berhasil dihapus' });
     } catch (err) {
       console.error(err);
-      alert("Gagal menghapus soal");
+      Toast.fire({ icon: 'error', title: 'Gagal menghapus soal' });
     }
   };
 
@@ -199,9 +209,16 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
       text: q.text,
       option_a: q.option_a, option_b: q.option_b, option_c: q.option_c, option_d: q.option_d, option_e: q.option_e,
       score_a: q.score_a, score_b: q.score_b, score_c: q.score_c, score_d: q.score_d, score_e: q.score_e,
-      answer_key: q.answer_key,
       explanation: q.explanation || ''
     });
+    
+    // Determine selectedKey for TWK/TIU based on which score is highest
+    if (q.type !== 'TKP') {
+      const scores = [q.score_a, q.score_b, q.score_c, q.score_d, q.score_e];
+      const max = Math.max(...scores);
+      const idx = scores.indexOf(max);
+      setSelectedKey(['A', 'B', 'C', 'D', 'E'][idx] || 'A');
+    }
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -372,9 +389,9 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
                   {['A', 'B', 'C', 'D', 'E'].map(k => (
                     <label key={k} className={`
                       w-12 h-12 flex items-center justify-center border-2 rounded-xl cursor-pointer font-bold transition-all
-                      ${formData.answer_key === k ? 'border-emerald-500 bg-emerald-50 text-emerald-600' : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'}
+                      ${selectedKey === k ? 'border-emerald-500 bg-emerald-50 text-emerald-600' : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'}
                     `}>
-                      <input type="radio" name="key" className="hidden" checked={formData.answer_key === k} onChange={() => handleAnswerKeyChange(k)} />
+                      <input type="radio" name="key" className="hidden" checked={selectedKey === k} onChange={() => handleAnswerKeyChange(k)} />
                       {k}
                     </label>
                   ))}
@@ -444,7 +461,10 @@ export default function QuestionManagement({ params }: { params: Promise<{ id: s
                 {['A', 'B', 'C', 'D', 'E'].map(opt => {
                   const val = q[`option_${opt.toLowerCase()}`];
                   const score = q[`score_${opt.toLowerCase()}`];
-                  const isKey = q.type !== 'TKP' && q.answer_key === opt;
+                  
+                  // For TWK/TIU, mark as correct if score is the max score (e.g., 5)
+                  const maxScore = Math.max(q.score_a, q.score_b, q.score_c, q.score_d, q.score_e);
+                  const isKey = q.type !== 'TKP' && score === maxScore;
                   return (
                     <div key={opt} className={`p-3 rounded-lg border flex flex-col ${isKey ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-slate-100 bg-slate-50'}`}>
                       <div className="flex items-start">
