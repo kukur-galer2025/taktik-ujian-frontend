@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const PUBLIC_PATHS = ["/", "/login", "/register", "/forgot-password", "/contact", "/faq", "/privacy", "/terms"];
+  const PUBLIC_PATHS = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/contact", "/faq", "/privacy", "/terms"];
 
   // Avoid hydration mismatch but prevent visual flash
   const useIsomorphicLayoutEffect = typeof window !== "undefined" ? import("react").then(m => m.useLayoutEffect).catch(() => useEffect) : useEffect;
