@@ -158,13 +158,23 @@ export default function UserNavbar({ user, onLogout }: UserNavbarProps) {
               </AnimatePresence>
             </div>
 
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Mobile hamburger & User Info */}
+            <div className="md:hidden flex items-center gap-3">
+              {user && (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-semibold text-slate-700 max-w-[100px] truncate">{user?.name}</span>
+                </div>
+              )}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              >
+                {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
