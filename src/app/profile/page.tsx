@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone_number: '',
     current_password: '',
     new_password: '',
     new_password_confirmation: ''
@@ -31,7 +32,8 @@ export default function ProfilePage() {
       setFormData(prev => ({
         ...prev,
         name: user.name,
-        email: user.email
+        email: user.email,
+        phone_number: user.phone_number || ''
       }));
     }
   }, [user]);
@@ -180,6 +182,19 @@ export default function ProfilePage() {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm"
+                  />
+                </div>
+
+                <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 shadow-sm transition-all hover:bg-slate-50">
+                  <label className="block text-sm font-black text-slate-800 mb-2 flex items-center gap-2">
+                    <Shield size={16} className="text-brand-500" /> Nomor Handphone
+                  </label>
+                  <input 
+                    type="tel" 
+                    required
+                    value={formData.phone_number}
+                    onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
                     className="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm"
                   />
                 </div>

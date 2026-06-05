@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import UserNavbar from "@/components/UserNavbar";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import PhoneNumberModal from "@/components/PhoneNumberModal";
 import { Loader2 } from "lucide-react";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-slate-50 pb-20 md:pb-0">
       <UserNavbar user={user} onLogout={logout} />
       {children}
+      <PhoneNumberModal />
       <MobileBottomNav />
     </div>
   );

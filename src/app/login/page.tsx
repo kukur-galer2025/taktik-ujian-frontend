@@ -76,13 +76,13 @@ function LoginContent() {
   return (
     <div className="min-h-screen bg-white flex">
       {/* Left Column: Form */}
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:w-[48rem] xl:px-24 relative overflow-hidden">
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:w-1/2 xl:px-24 relative overflow-hidden">
         {/* Subtle decorative circles for the form side */}
         <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
-        <div className="mx-auto w-full max-w-sm lg:w-96 relative z-10">
-          <Link href="/" className="flex items-center gap-2 group mb-10">
+        <div className="mx-auto w-full max-w-md relative z-10">
+          <Link href="/" className="flex items-center gap-2 group mb-8">
             <img src="/logo-taktik-samping.webp" alt="Taktik Ujian" className="h-12 w-auto object-contain" />
           </Link>
           
@@ -184,11 +184,11 @@ function LoginContent() {
                 </div>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-lg shadow-brand-500/30 text-base font-bold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-transparent rounded-2xl shadow-lg shadow-brand-500/30 text-base font-bold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {loading ? (
                     <Loader2 className="animate-spin" size={20} />
@@ -253,7 +253,7 @@ function LoginContent() {
         {/* Background Image from Unsplash */}
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000&auto=format&fit=crop')" }}
+          style={{ backgroundImage: "url('/bg-login-asn.png')" }}
         >
           {/* Deep dark gradient overlay to ensure text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent mix-blend-multiply"></div>
